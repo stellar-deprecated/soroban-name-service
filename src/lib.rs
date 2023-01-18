@@ -87,6 +87,52 @@ impl Contract {
 
         Ok(key)
     }
+    
+    pub fn setOwner(env: Env, hash: BytesN<32>,  new_owner: Address) -> Result<BytesN<32>, Error> {
+        let mut map = Self::get_map(&env);
+
+        // Check if hash exists
+        let hash = match map.get(hash.clone()) {
+            Some(node) => node.unwrap(),
+            None => return Err(Error::InvalidHashInput) 
+        };
+
+        // Check if invoker is authorized to edit the owner
+        if !Self::auth_check(&env, &hash) {
+            return Err(Error::NotAuthorized)
+        }
+
+        // updatenode
+        let key = Self::hash(&env, &new_owner);
+        map.set(key.clone(), Node {
+                owner: new_owner, //will this overwrite the whole node or just this variable?
+        });
+
+        Ok(key)
+    }
+
+    pub fn setResolver(env: Env, hash: BytesN<32>,  new_resolv: Address) -> Result<BytesN<32>, Error> {
+        let mut map = Self::get_map(&env);
+
+        // Check if hash exists
+        let hash = match map.get(hash.clone()) {
+            Some(node) => node.unwrap(),
+            None => return Err(Error::InvalidHashInput) 
+        };
+
+        // Check if invoker is authorized to edit the resolver
+        if !Self::auth_check(&env, &hash) {
+            return Err(Error::NotAuthorized)
+        }
+
+        // update node
+        let key = Self::hash(&env, &new_resolv);
+        map.set(key.clone(), Node {
+            res_addr: new_resolv, //will this overwrite the whole node or just this variable?
+            });
+
+    Ok(key)
+}
 
     // Checks if caller owns node or any of node's parents
     fn auth_check(env: &Env, node: &Node) -> bool {
