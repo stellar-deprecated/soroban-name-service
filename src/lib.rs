@@ -26,7 +26,7 @@ pub enum DataKey {
 pub struct Node {
     pub owner: Address,
     pub p_hash: BytesN<32>,
-    pub res_addr: Address
+    pub res_addr: Address,
 }
 
 #[contractimpl]
@@ -42,7 +42,7 @@ impl Contract {
         map.set(BytesN::from_array(&env, &[0; 32]), Node {
             owner: env.invoker(),
             p_hash: BytesN::from_array(&env, &[0; 32]),
-            res_addr: env.invoker() // This should be empty but I don't know how to default init Address
+            res_addr: env.invoker(), // This should be empty but I don't know how to default init Address
         });
 
         env.storage().set(DataKey::RMap, map)
@@ -74,7 +74,7 @@ impl Contract {
 
         // Check if invoker is authorized to create subdomain
         if !Self::auth_check(&env, &parent_node) {
-            return Err(Error::NotAuthorized)
+            return Err(Error::NotAuthorized);
         }
 
         // Insert new node
@@ -82,68 +82,68 @@ impl Contract {
         map.set(key.clone(), Node {
             owner: owner,
             p_hash: parent_hash,
-            res_addr
+            res_addr,
         });
 
         Ok(key)
     }
-    
-    pub fn setOwner(env: Env, hash: BytesN<32>,  new_owner: Address) -> Result<BytesN<32>, Error> {
+
+    pub fn setOwner(env: Env, hash: BytesN<32>, new_owner: Address) -> Result<BytesN<32>, Error> {
         let mut map = Self::get_map(&env);
 
         // Check if hash exists
-        let hash = match map.get(hash.clone()) {
-            Some(node) => node.unwrap(),
-            None => return Err(Error::InvalidHashInput) 
+        let node = match map.get(hash.clone()) {
+            Some(res) => res.unwrap(),
+            None => return Err(Error::InvalidHashInput)
         };
 
         // Check if invoker is authorized to edit the owner
-        if !Self::auth_check(&env, &hash) {
-            return Err(Error::NotAuthorized)
+        if !Self::auth_check(&env, &node) {
+            return Err(Error::NotAuthorized);
         }
 
-        // updatenode
-        let key = Self::hash(&env, &new_owner);
-        map.set(key.clone(), Node {
-                owner: new_owner, //will this overwrite the whole node or just this variable?
+        map.set(hash.clone(), Node {
+            owner: new_owner,
+            p_hash: node.p_hash,
+            res_addr: node.res_addr,
         });
 
-        Ok(key)
+        Ok(hash.clone())
     }
 
-    pub fn setResolver(env: Env, hash: BytesN<32>,  new_resolv: Address) -> Result<BytesN<32>, Error> {
+    pub fn setRes(env: Env, hash: BytesN<32>, new_resolv: Address) -> Result<BytesN<32>, Error> {
         let mut map = Self::get_map(&env);
 
         // Check if hash exists
-        let hash = match map.get(hash.clone()) {
-            Some(node) => node.unwrap(),
-            None => return Err(Error::InvalidHashInput) 
+        let node = match map.get(hash.clone()) {
+            Some(res) => res.unwrap(),
+            None => return Err(Error::InvalidHashInput)
         };
 
         // Check if invoker is authorized to edit the resolver
-        if !Self::auth_check(&env, &hash) {
-            return Err(Error::NotAuthorized)
+        if !Self::auth_check(&env, &node) {
+            return Err(Error::NotAuthorized);
         }
 
-        // update node
-        let key = Self::hash(&env, &new_resolv);
-        map.set(key.clone(), Node {
-            res_addr: new_resolv, //will this overwrite the whole node or just this variable?
-            });
+        map.set(hash.clone(), Node {
+            owner: node.owner,
+            p_hash: node.p_hash,
+            res_addr: new_resolv,
+        });
 
-    Ok(key)
-}
+        Ok(hash.clone())
+    }
 
     // Checks if caller owns node or any of node's parents
     fn auth_check(env: &Env, node: &Node) -> bool {
         if node.owner == env.invoker() {
-            return true
+            return true;
         }
 
         // If parent hash is empty, current node mut be root node
         let parent_hash = node.p_hash.clone();
         if parent_hash.is_empty() {
-            return false
+            return false;
         }
 
         let map = Self::get_map(env);
@@ -159,7 +159,7 @@ impl Contract {
     }
 
     fn get_map(env: &Env) -> Map<BytesN<32>, Node> {
-        return env.storage().get_unchecked(DataKey::RMap).unwrap()
+        return env.storage().get_unchecked(DataKey::RMap).unwrap();
     }
 }
 
