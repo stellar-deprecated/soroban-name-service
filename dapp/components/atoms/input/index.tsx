@@ -3,28 +3,24 @@ import styles from './style.module.css'
 
 export interface InputProps {
   placeHolder: string
-  setAmount: Dispatch<SetStateAction<number | undefined>>
-  input: string
-  setInput: Dispatch<SetStateAction<string>>
+  setValue: Dispatch<SetStateAction<string>>
+  value: string
 }
 
-export function AmountInput({ placeHolder, setAmount, input, setInput }: InputProps) {
+export function Input({ placeHolder, setValue, value }: InputProps) {
   const handleChange = (event: {
     target: { name: string; value: string }
   }): void => {
-    setAmount(parseInt(event.target.value))
-    setInput(event.target.value)
+    setValue(event.target.value)
   }
 
   return (
     <input
-      name="amount"
-      type="number"
+      name="input"
       placeholder={placeHolder}
       className={styles.input}
       onChange={handleChange}
-      value={input}
-      min={0}
+      value={value}
       autoComplete="off"
     />
   )

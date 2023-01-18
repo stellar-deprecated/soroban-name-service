@@ -1,4 +1,2 @@
-export * from './transaction-modal'
-export * from './form-pledge'
+export * from './form-search'
 export * from './wallet-data'
-export * from './deposits'
