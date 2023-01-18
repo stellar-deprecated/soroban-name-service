@@ -3,12 +3,11 @@
   display: flex;
   padding: 16px 12px;
   height: 50px;
-  background: #37397a;
-  border-radius: 8px;
+  background: transparent;
   border: none;
   font-weight: 600;
-  font-size: 16px;
-  color: #ffffff;
+  font-size: 14px;
+  color: #37397a;
   justify-content: center;
   align-items: center;
   cursor: pointer;
@@ -16,6 +15,6 @@
 }
 
 .button:disabled {
-  background: #37397a80;
+  background: transparent;
   cursor: not-allowed;
 }

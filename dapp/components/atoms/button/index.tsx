@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React from 'react'
 import { Loading } from '../loading'
 import styles from './style.module.css'
 

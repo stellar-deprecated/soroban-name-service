@@ -4,7 +4,12 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  background-color: #eeedef;
+  background: radial-gradient(
+    circle,
+    rgba(36, 37, 83, 1) 0%,
+    rgba(38, 33, 59, 1) 35%,
+    rgba(28, 28, 30, 1) 100%
+  );
 }
 
 a {
@@ -28,7 +33,7 @@ h3 {
   font-size: 20px;
   line-height: 28px;
   letter-spacing: -0.02em;
-  color: #000000;
+  color: #ffffff;
 }
 
 h6 {
