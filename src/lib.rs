@@ -31,8 +31,25 @@ pub struct Node {
     pub res_addr: Address,
 }
 
-fn get_map(env: &Env) -> Map<BytesN<32>, Node> {
-    return env.storage().get_unchecked(DataKey::RMap).unwrap();
+fn map_get(env: &Env, key: BytesN<32>) -> Option<Node> {
+    let map: Map<BytesN<32>, Node> = env.storage().get_unchecked(DataKey::RMap).unwrap();
+    match map.get(key) {
+        Some(res) => match res {
+            Ok(node) => Some(node),
+            _ => None,
+        },
+        None => None,
+    }
+}
+
+fn map_insert(env: &Env, key: BytesN<32>, node: Node) {
+    let mut map: Map<BytesN<32>, Node> = env.storage().get_unchecked(DataKey::RMap).unwrap();
+    map.set(key, node);
+    env.storage().set(DataKey::RMap, map);
+}
+
+fn empty_hash(env: &Env) -> BytesN<32> {
+    BytesN::from_array(&env, &[0; 32])
 }
 
 // Checks if caller owns node or any of node's parents
@@ -47,8 +64,7 @@ fn auth_check(env: &Env, node: &Node) -> bool {
         return false;
     }
 
-    let map = get_map(env);
-    let parent_node = map.get(parent_hash).unwrap().unwrap();
+    let parent_node = map_get(env, parent_hash).unwrap();
     auth_check(env, &parent_node)
 }
 
@@ -70,15 +86,15 @@ impl Contract {
 
         // Root node is empty hash, owned by contract initializer
         map.set(
-            BytesN::from_array(&env, &[0; 32]),
+            empty_hash(&env),
             Node {
                 owner: env.invoker(),
-                p_hash: BytesN::from_array(&env, &[0; 32]),
+                p_hash: empty_hash(&env),
                 res_addr: env.invoker(), // This should be empty but I don't know how to default init Address
             },
         );
 
-        env.storage().set(DataKey::RMap, map)
+        env.storage().set(DataKey::RMap, map);
     }
 
     // Given a nameHash, returns the associated address
@@ -88,15 +104,10 @@ impl Contract {
             return Err(Error::InvalidHashInput);
         }
 
-        let map = get_map(&env);
-        match map.get(hash) {
-            Some(node) => Ok(node.unwrap().res_addr),
+        match map_get(&env, hash) {
+            Some(node) => Ok(node.res_addr),
             None => Err(Error::NotFound),
         }
-    }
-
-    pub fn map_test(env: Env) -> Map<BytesN<32>, Node> {
-        get_map(&env)
     }
 
     // Registers subdomain under parent node
@@ -107,11 +118,9 @@ impl Contract {
         owner: Address,
         res_addr: Address,
     ) -> Result<BytesN<32>, Error> {
-        let mut map = get_map(&env);
-
         // Check if parent hash exists
-        let parent_node = match map.get(parent_hash.clone()) {
-            Some(node) => node.unwrap(),
+        let parent_node = match map_get(&env, parent_hash.clone()) {
+            Some(node) => node,
             None => return Err(Error::ParentNotFound),
         };
 
@@ -122,7 +131,8 @@ impl Contract {
 
         // Insert new node
         let key = append_hash(&env, &parent_hash, &leaf_hash);
-        map.set(
+        map_insert(
+            &env,
             key.clone(),
             Node {
                 owner: owner,
@@ -135,11 +145,9 @@ impl Contract {
     }
 
     pub fn set_owner(env: Env, hash: BytesN<32>, new_owner: Address) -> Result<BytesN<32>, Error> {
-        let mut map = get_map(&env);
-
         // Check if hash exists
-        let node = match map.get(hash.clone()) {
-            Some(res) => res.unwrap(),
+        let node = match map_get(&env, hash.clone()) {
+            Some(res) => res,
             None => return Err(Error::InvalidHashInput),
         };
 
@@ -148,7 +156,8 @@ impl Contract {
             return Err(Error::NotAuthorized);
         }
 
-        map.set(
+        map_insert(
+            &env,
             hash.clone(),
             Node {
                 owner: new_owner,
@@ -161,11 +170,9 @@ impl Contract {
     }
 
     pub fn set_res(env: Env, hash: BytesN<32>, new_resolv: Address) -> Result<BytesN<32>, Error> {
-        let mut map = get_map(&env);
-
         // Check if hash exists
-        let node = match map.get(hash.clone()) {
-            Some(res) => res.unwrap(),
+        let node = match map_get(&env, hash.clone()) {
+            Some(res) => res,
             None => return Err(Error::InvalidHashInput),
         };
 
@@ -174,7 +181,8 @@ impl Contract {
             return Err(Error::NotAuthorized);
         }
 
-        map.set(
+        map_insert(
+            &env,
             hash.clone(),
             Node {
                 owner: node.owner,
@@ -184,6 +192,16 @@ impl Contract {
         );
 
         Ok(hash.clone())
+    }
+
+    #[cfg(test)]
+    pub fn t_get(env: Env, key: BytesN<32>) -> Option<Node> {
+        map_get(&env, key)
+    }
+
+    #[cfg(test)]
+    pub fn t_insert(env: Env, key: BytesN<32>, node: Node) {
+        map_insert(&env, key, node)
     }
 }
 
