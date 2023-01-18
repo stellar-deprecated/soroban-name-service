@@ -1,6 +1,6 @@
 #![no_std]
 
-use soroban_sdk::{contractimpl, contracttype, symbol, vec, Env, Symbol, Vec, map, Map, BytesN, Address};
+use soroban_sdk::{contractimpl, contracttype, Env, map, Map, BytesN, Address, Bytes};
 
 pub struct Contract;
 
@@ -19,6 +19,14 @@ pub struct Node {
 
 #[contractimpl]
 impl Contract {
+
+    fn append_hash(env: &Env, parent_hash: &BytesN<32>, leaf_hash: &BytesN<32>) -> BytesN<32> {
+        let mut bytes = Bytes::new(env);
+        bytes.append(&leaf_hash.clone().into());
+        bytes.append(&parent_hash.clone().into());
+        env.crypto().sha256(&bytes)
+    }
+
     pub fn init(env: Env) {
         if env.storage().has(DataKey::RMap) {
             panic!("Contract already initialized")
@@ -34,20 +42,4 @@ impl Contract {
     }
 }
 
-#[cfg(test)]
-mod test {
-    use super::{Contract, ContractClient};
-    use soroban_sdk::{symbol, vec, Env};
-
-    #[test]
-    fn init_not_throws() {
-        let env = Env::default();
-        let contract_id = env.register_contract(None, Contract);
-        let client = ContractClient::new(&env, &contract_id);
-
-        client.init();
-
-        let map = client.get_map();
-    }
-}
-
+mod test;
