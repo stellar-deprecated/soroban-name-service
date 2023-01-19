@@ -1,0 +1,28 @@
+.radioButton {
+  position: relative;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.bubbleOuter {
+  height: 16px;
+  width: 16px;
+  border: 1.5px solid #37397a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+}
+
+.bubbleInner {
+  height: 9px;
+  width: 9px;
+  background-color: #37397a;
+  border-radius: 50%;
+}

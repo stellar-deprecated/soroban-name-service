@@ -2,8 +2,7 @@ import React from 'react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import { Search } from '../components/organisms'
-import { WalletData } from '../components/molecules'
+import { Form } from '../components/organisms'
 
 const Home: NextPage = () => {
   return (
@@ -16,11 +15,10 @@ const Home: NextPage = () => {
 
       <header className={styles.header}>
         <h3>Soroban Name Service</h3>
-        <WalletData />
       </header>
       <main className={styles.main}>
         <div className={styles.content}>
-          <Search />
+          <Form />
         </div>
       </main>
     </>

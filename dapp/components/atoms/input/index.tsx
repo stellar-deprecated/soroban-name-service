@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction } from 'react'
 import styles from './style.module.css'
 
 export interface InputProps {
-  placeHolder: string
+  placeHolder?: string
   setValue: Dispatch<SetStateAction<string>>
   value: string
 }
