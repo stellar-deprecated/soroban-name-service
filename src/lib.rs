@@ -60,8 +60,9 @@ fn auth_check(env: &Env, node: &Node) -> bool {
 
     // If parent hash is empty, current node mut be root node
     let parent_hash = node.p_hash.clone();
-    if parent_hash.is_empty() {
-        return false;
+    if parent_hash == empty_hash(&env) {
+        let parent_node = map_get(env, parent_hash).unwrap();
+        return parent_node.owner == env.invoker();
     }
 
     let parent_node = map_get(env, parent_hash).unwrap();
