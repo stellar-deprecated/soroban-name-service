@@ -1,32 +1,31 @@
-import * as SorobanClient from 'soroban-client';
-
+const { subtle } = require('crypto').webcrypto;
 interface HashedDomain {
   label?: string;
   labelHash?: string;
   parentHash?: string;
 }
 
-function createLookupDomainTx(domain: string) {
-  const {parentHash, labelHash} = computeHashedDomain(domain);
+async function createLookupDomainTx(domain: string) {
+  const {parentHash, labelHash} = await computeHashedDomain(domain);
 }
 
-export function computeHashedDomain(domain: string): HashedDomain {
+export async function computeHashedDomain(domain: string): Promise<HashedDomain> {
   const fragments = domain.split(".");
 
   if (fragments.length == 0) {
      return {};
   }
   const label: string = fragments.shift() || '';
-  const labelHash = hash(label);
+  const labelHash = await hash(label);
 
   return {
     label,
     labelHash,
-    parentHash: computeHash(fragments),
+    parentHash: await computeHash(fragments),
   }
 }
 
-export function computeHash(fragments: Array<string>): string {
+export async function computeHash(fragments: Array<string>): Promise<string> {
   // Accepts a list of domain fragments and computes the
   // SHA256 hash.
   //
@@ -41,19 +40,23 @@ export function computeHash(fragments: Array<string>): string {
   //             SHA256('xlm') + SHA256(
   //                 SHA256('0')))))
   if (fragments.length == 1) {
-    return hash(hash(fragments[0]) + zeroHash());
+    return await hash(await hash(fragments[0]) + zeroHash());
   }
 
   const node = fragments.shift() || '';
-  return hash(hash(node) + computeHash(fragments));
+  return await hash(await hash(node) + computeHash(fragments));
 }
 
 function zeroHash(): string {
-  return hash('0');
+  return "0000000000000000000000000000000000000000000000000000000000000000";
 }
-function hash(data: string): string {
-  const buffer = Buffer.from(data, 'utf-8');
-  return SorobanClient.StrKey.encodeSha256Hash(buffer);
+
+async function hash(message: string): Promise<string> {
+  const msgUint8 = new TextEncoder().encode(message);
+  const hashBuffer = await subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
 }
 
 function createRegisterDomainTx() {
