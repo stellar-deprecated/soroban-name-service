@@ -33,6 +33,7 @@
     "@types/node": "17.0.30",
     "@types/react": "18.0.8",
     "@types/react-dom": "18.0.3",
+    "@types/webcrypto": "^0.0.28",
     "eslint": "8.14.0",
     "eslint-config-next": "12.1.5",
     "jest": "^29.3.1",
