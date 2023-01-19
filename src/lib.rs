@@ -91,7 +91,7 @@ impl Contract {
             Node {
                 owner: env.invoker(),
                 p_hash: empty_hash(&env),
-                res_addr: env.invoker(), // This should be empty but I don't know how to default init Address
+                res_addr: Address::Contract(empty_hash(&env)),
             },
         );
 
@@ -100,8 +100,12 @@ impl Contract {
 
     // Given a nameHash, returns the associated address
     pub fn resolve(env: Env, hash: BytesN<32>) -> Result<Address, Error> {
+        if !env.storage().has(DataKey::RMap) {
+            panic!("Contract not initialized")
+        }
+
         // Should not support empty queries, even if "technically" possible with initial root node
-        if hash.is_empty() {
+        if hash == empty_hash(&env) {
             return Err(Error::InvalidHashInput);
         }
 
@@ -119,6 +123,10 @@ impl Contract {
         owner: Address,
         res_addr: Address,
     ) -> Result<BytesN<32>, Error> {
+        if !env.storage().has(DataKey::RMap) {
+            panic!("Contract not initialized")
+        }
+
         // Check if parent hash exists
         let parent_node = match map_get(&env, parent_hash.clone()) {
             Some(node) => node,
@@ -146,6 +154,10 @@ impl Contract {
     }
 
     pub fn set_owner(env: Env, hash: BytesN<32>, new_owner: Address) -> Result<BytesN<32>, Error> {
+        if env.storage().has(DataKey::RMap) {
+            panic!("Contract not initialized")
+        }
+
         // Check if hash exists
         let node = match map_get(&env, hash.clone()) {
             Some(res) => res,
@@ -171,6 +183,10 @@ impl Contract {
     }
 
     pub fn set_res(env: Env, hash: BytesN<32>, new_resolv: Address) -> Result<BytesN<32>, Error> {
+        if env.storage().has(DataKey::RMap) {
+            panic!("Contract not initialized")
+        }
+
         // Check if hash exists
         let node = match map_get(&env, hash.clone()) {
             Some(res) => res,
