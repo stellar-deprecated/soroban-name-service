@@ -12,7 +12,7 @@ fn setup_test() -> (AccountId, ContractClient) {
     let client = ContractClient::new(&env, &contract_id);
 
     let admin = env.accounts().generate();
-    client.with_source_account(&admin).init();
+    client.with_source_account(&admin).init(&(Address::Account(admin.clone())));
     (admin, client)
 }
 

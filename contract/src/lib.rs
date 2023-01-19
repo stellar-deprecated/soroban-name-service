@@ -1,7 +1,7 @@
 #![no_std]
 
 use soroban_sdk::{
-    contracterror, contractimpl, contracttype, map, Address, Bytes, BytesN, Env, Map,
+    contracterror, contractimpl, contracttype, map, Address, Bytes, BytesN, Env, Map
 };
 
 pub struct Contract;
@@ -78,7 +78,7 @@ fn append_hash(env: &Env, parent_hash: &BytesN<32>, leaf_hash: &BytesN<32>) -> B
 
 #[contractimpl]
 impl Contract {
-    pub fn init(env: Env) {
+    pub fn init(env: Env, r_node_owner: Address) {
         if env.storage().has(DataKey::RMap) {
             panic!("Contract already initialized")
         }
@@ -89,9 +89,9 @@ impl Contract {
         map.set(
             empty_hash(&env),
             Node {
-                owner: env.invoker(),
+                owner: r_node_owner.clone(),
                 p_hash: empty_hash(&env),
-                res_addr: Address::Contract(empty_hash(&env)),
+                res_addr: r_node_owner.clone(), // This should be empty but I don't know how to default init Address
             },
         );
 
