@@ -5,27 +5,39 @@ interface HashedDomain {
   parentHash?: string;
 }
 
-async function createLookupDomainTx(domain: string) {
-  const {parentHash, labelHash} = await computeHashedDomain(domain);
-}
+// async function createLookupDomainTx(domain: string) {
+//   const {parentHash, labelHash} = await computeHashedDomain(domain);
+// }
 
-export async function computeHashedDomain(domain: string): Promise<HashedDomain> {
-  const fragments = domain.split(".");
+// export async function computeHashedDomain(domain: string): Promise<HashedDomain> {
+//   const fragments = domain.split(".");
 
-  if (fragments.length == 0) {
-     return {};
-  }
-  const label: string = fragments.shift() || '';
-  const labelHash = await hash(label);
+//   const binaryFragments =
 
-  return {
-    label,
-    labelHash,
-    parentHash: await computeHash(fragments),
-  }
-}
+//   map((fragment) =>
+//     (new TextEncoder().encode(fragment)));
+
+//   if (fragments.length == 0) {
+//      return {};
+//   }
+//   const label: string = fragments.shift() || '';
+//   const labelHash = await hash(label);
+
+//   return {
+//     label,
+//     labelHash,
+//     parentHash: await computeHash(fragments),
+//   }
+// }
 
 export async function computeHash(fragments: Array<string>): Promise<string> {
+  const binFragments = fragments.map((f) => (new TextEncoder().encode(f)));
+  const binHash = await computeBinaryHash(binFragments);
+  const hashHex = binHash.map((b) => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
+
+export async function computeBinaryHash(binFragments: Array<Uint8Array>): Promise<Array<number>> {
   // Accepts a list of domain fragments and computes the
   // SHA256 hash.
   //
@@ -39,24 +51,29 @@ export async function computeHash(fragments: Array<string>): Promise<string> {
   //         SHA256('stellar') + SHA256(
   //             SHA256('xlm') + SHA256(
   //                 SHA256('0')))))
-  if (fragments.length == 1) {
-    return await hash(await hash(fragments[0]) + zeroHash());
+
+  if (binFragments.length == 1) {
+    return await hash(
+      new Uint8Array(
+        [...await hash(binFragments[0]), ...emptyHash()]
+      ))
+  } else {
+    const node = binFragments.shift() || new Uint8Array();
+    return await hash(
+      new Uint8Array(
+        [...await hash(node), ...await computeBinaryHash(binFragments)]
+      ));
   }
-
-  const node = fragments.shift() || '';
-  return await hash(await hash(node) + computeHash(fragments));
 }
 
-function zeroHash(): string {
-  return "0000000000000000000000000000000000000000000000000000000000000000";
+export function emptyHash(): Array<number> {
+  return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 }
 
-async function hash(message: string): Promise<string> {
-  const msgUint8 = new TextEncoder().encode(message);
-  const hashBuffer = await subtle.digest('SHA-256', msgUint8);
+async function hash(message: Uint8Array): Promise<Array<number>> {
+  const hashBuffer = await subtle.digest('SHA-256', message);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+  return hashArray;
 }
 
 function createRegisterDomainTx() {

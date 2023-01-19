@@ -8,6 +8,7 @@ test('computing hashes for domains', async () => {
   // expect(hash1).not.toBe(hash2);
 
   expect(hash2).toBe("f36a874cf293751cd8147729af3cd46c13608be7296ea99cb2cbfd6ee86ade14");
+  // expect(await sns.emptyHash()).toBe("00000000000");
 
   // expect(hash1).toBe('lalala');
   // expect(await sns.zeroHash()).toBe('000000000000');
