@@ -1,25 +1,14 @@
 #![cfg(test)]
 
 use crate::{Deployer, DeployerClient};
-use soroban_sdk::{testutils::Accounts, contracterror, symbol, Bytes, BytesN, Env, IntoVal, Address};
+use soroban_sdk::{testutils::Accounts, symbol, Bytes, BytesN, Env, IntoVal, Address};
 
 // The contract that will be deployed by the deployer contract.
 mod contract {
     soroban_sdk::contractimport!(
-        file = "../target/wasm32-unknown-unknown/release/soroban_name_service.wasm"
+        // file = "../target/wasm32-unknown-unknown/release/soroban_name_service.wasm"
+        file = "../result/lib/soroban_name_service.wasm"
     );
-}
-
-#[contracterror]
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
-#[repr(u32)]
-pub enum Error {
-    // Resolution errors
-    InvalidHashInput = 1,
-    NotFound = 2,
-    // Registration errors
-    ParentNotFound = 3,
-    NotAuthorized = 4,
 }
 
 #[test]
