@@ -6,8 +6,8 @@ use soroban_sdk::{testutils::Accounts, symbol, Bytes, BytesN, Env, IntoVal, Addr
 // The contract that will be deployed by the deployer contract.
 mod contract {
     soroban_sdk::contractimport!(
-        // file = "../target/wasm32-unknown-unknown/release/soroban_name_service.wasm"
-        file = "../result/lib/soroban_name_service.wasm"
+        file = "../target/wasm32-unknown-unknown/release/soroban_name_service.wasm"
+        // file = "../result/lib/soroban_name_service.wasm"
     );
 }
 
