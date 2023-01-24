@@ -91,7 +91,7 @@ impl Contract {
             Node {
                 owner: r_node_owner.clone(),
                 p_hash: empty_hash(&env),
-                res_addr: r_node_owner.clone(), // This should be empty but I don't know how to default init Address
+                res_addr: Address::Contract(empty_hash(&env))
             },
         );
 
@@ -151,6 +151,16 @@ impl Contract {
         );
 
         Ok(key)
+    }
+
+    pub fn get_owner(env: Env, hash: BytesN<32>) -> Result<Address, Error> {
+        if !env.storage().has(DataKey::RMap) {
+            panic!("Contract not initialized")
+        }
+        match map_get(&env, hash) {
+            Some(node) => Ok(node.owner),
+            None => Err(Error::NotFound),
+        }
     }
 
     pub fn set_owner(env: Env, hash: BytesN<32>, new_owner: Address) -> Result<BytesN<32>, Error> {
@@ -220,6 +230,7 @@ impl Contract {
     pub fn t_insert(env: Env, key: BytesN<32>, node: Node) {
         map_insert(&env, key, node)
     }
+
 }
 
 mod test;
