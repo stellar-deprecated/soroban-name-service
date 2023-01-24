@@ -8,13 +8,13 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>SNS - Soroban Name Service</title>
-        <meta name="description" content="Soroban Name Service" />
+        <title>SNS - Stellar Name Service</title>
+        <meta name="description" content="Stellar Name Service" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <header className={styles.header}>
-        <h3>Soroban Name Service</h3>
+        <h3>Stellar Name Service</h3>
       </header>
       <main className={styles.main}>
         <div className={styles.content}>

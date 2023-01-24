@@ -1,4 +1,4 @@
-# Soroban Name Service
+# Stellar Name Service
 
 ![Screenshot of the Dapp](screenshot.png)
 
