@@ -17,33 +17,42 @@ const Form: FunctionComponent = () => {
     boolean | undefined
   >()
 
-  const handleLookup = async () => {
+  const getOwnerAddress = () => customOwnerAddress || account?.address || ''
+  const getResolverAddress = () =>
+    customResolverAddress || account?.address || ''
+
+  const handleLookup = async (searchTerm: string) => {
     // TODO - call lookup() with:
     // params { name: name }
 
-    // Temporary, for testing:
-    if (name === 'test') {
-      setIsNameAvailable(true)
-    } else {
+    // Temporary, for demo:
+    if (searchTerm === 'taken') {
       setIsNameAvailable(false)
+    } else {
+      setIsNameAvailable(true)
     }
   }
 
   const handleRegister = async () => {
     // TODO - call register() with:
     // params {
-    //    ownerAddress: (customOwnerAddress || account.address),
-    //    resolverAddress: (customResolverAddress || account.address),
+    //    ownerAddress: getOwnerAddress(),
+    //    resolverAddress: getResolverAddress(),
     // }
 
-    // Temporary, for testing:
-    // setIsRegisterSuccess(false)
-    setIsRegisterSuccess(true)
+    // Temporary, for demo:
+    if (name === 'noop') {
+      setIsRegisterSuccess(false)
+    } else {
+      setIsRegisterSuccess(true)
+    }
   }
 
   const handleReset = () => {
     setName('')
     setIsNameAvailable(undefined)
+    setCustomOwnerAddress('')
+    setCustomResolverAddress('')
     setIsRegisterSuccess(undefined)
   }
 
@@ -52,11 +61,7 @@ const Form: FunctionComponent = () => {
       {account ? (
         <>
           {isNameAvailable === undefined && (
-            <LookupName
-              name={name}
-              setName={setName}
-              handleLookup={handleLookup}
-            />
+            <LookupName setName={setName} handleLookup={handleLookup} />
           )}
 
           {isNameAvailable === false && (
@@ -81,6 +86,8 @@ const Form: FunctionComponent = () => {
             <RegistrationResult
               isSuccess={isRegisterSuccess}
               name={name}
+              getOwnerAddress={getOwnerAddress}
+              getResolverAddress={getResolverAddress}
               handleReset={handleReset}
             />
           )}

@@ -7,30 +7,35 @@ import React, {
 import { Button, Input, InputLabel } from '../../atoms'
 
 interface LookupNameProps {
-  name: string
   setName: Dispatch<SetStateAction<string>>
-  handleLookup: () => void
+  handleLookup: (searchTerm: string) => void
 }
 
 const LookupName: FunctionComponent<LookupNameProps> = props => {
+  const [nameInput, setNameInput] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const submit = async () => {
+  const submit = () => {
     setIsSubmitting(true)
-    await props.handleLookup()
-    setIsSubmitting(false)
+
+    const formattedName = nameInput.replaceAll('.xlm', '')
+    props.setName(formattedName)
+
+    setTimeout(async () => {
+      await props.handleLookup(formattedName)
+    }, 1000)
   }
 
   return (
     <div>
       <InputLabel text={'Enter a name'} />
 
-      <Input setValue={props.setName} value={props.name} />
+      <Input setValue={setNameInput} value={nameInput} />
 
       <Button
         title={'Search'}
         onClick={submit}
-        disabled={!props.name || isSubmitting}
+        disabled={!nameInput || isSubmitting}
         isLoading={isSubmitting}
       />
     </div>

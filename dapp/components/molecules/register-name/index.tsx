@@ -36,19 +36,21 @@ const RegisterName: FunctionComponent<RegisterNameProps> = props => {
 
   const submit = async () => {
     setIsSubmitting(true)
-    await props.handleRegister()
-    setIsSubmitting(false)
+
+    setTimeout(async () => {
+      await props.handleRegister()
+    }, 1000)
   }
 
   return (
     <div>
-      <p className={styles.p}>
-        <b style={{ color: '#37397a' }}>{props.name}.xlm</b> is available!
+      <p className={styles.emphasized}>
+        <b style={{ color: '#37397a' }}>{props.name}.xlm</b> is available
       </p>
 
       <Spacer rem={1} />
 
-      <InputLabel text={'Label owner account address'} />
+      <InputLabel text={'Owner account address'} />
       {account && (
         <RadioButton
           title={`Use your address - ${account.displayName}`}
