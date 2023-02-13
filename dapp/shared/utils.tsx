@@ -3,7 +3,14 @@ import humanizeDuration from 'humanize-duration'
 import moment from 'moment'
 
 const formatAmount = (value: BigNumber, decimals = 7): string => {
-  return value.shiftedBy(decimals * -1).toNumber().toLocaleString()
+  return value
+    .shiftedBy(decimals * -1)
+    .toNumber()
+    .toLocaleString()
+}
+
+const formatDisplayAddress = (address: string) => {
+  return `${address.slice(0, 4)}...${address.slice(-4)}`
 }
 
 const getRemainingTime = (date?: Date): string => {
@@ -43,6 +50,7 @@ const percentage = (
 
 const Utils = {
   formatAmount,
+  formatDisplayAddress,
   getRemainingTime,
   isExpired,
   percentage,

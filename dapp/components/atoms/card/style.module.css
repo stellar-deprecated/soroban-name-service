@@ -7,5 +7,5 @@
   height: fit-content;
   display: flex;
   flex-direction: column;
-  min-width: 400px;
+  width: 400px;
 }
