@@ -1,4 +1,4 @@
-*** This is an experimental project. It may contains bugs or security issues ***
+***This is an experimental project. It may contain bugs or security issues***
 
 ## How to run
 Rust is not required to be installed in the system. You will need [nix](https://nixos.org/download.html) installed.  
