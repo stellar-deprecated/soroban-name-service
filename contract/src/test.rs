@@ -12,7 +12,7 @@ fn setup_test() -> (AccountId, ContractClient) {
     let client = ContractClient::new(&env, &contract_id);
 
     let admin = env.accounts().generate();
-    client.with_source_account(&admin).init();
+    client.with_source_account(&admin).init(&(Address::Account(admin.clone())));
     (admin, client)
 }
 
@@ -173,8 +173,9 @@ fn panic_if_initialized_twice() {
     let client = ContractClient::new(&env, &contract_id);
 
     let admin = env.accounts().generate();
-    client.with_source_account(&admin).init();
-    client.with_source_account(&admin).init();
+    let admin_addr = Address::Account(admin.clone());
+    client.with_source_account(&admin).init(&admin_addr);
+    client.with_source_account(&admin).init(&admin_addr);
 }
 
 #[test]

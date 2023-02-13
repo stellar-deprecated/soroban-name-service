@@ -1,7 +1,7 @@
 #![no_std]
 
 use soroban_sdk::{
-    contracterror, contractimpl, contracttype, map, Address, Bytes, BytesN, Env, Map,
+    contracterror, contractimpl, contracttype, map, Address, Bytes, BytesN, Env, Map
 };
 
 pub struct Contract;
@@ -78,7 +78,7 @@ fn append_hash(env: &Env, parent_hash: &BytesN<32>, leaf_hash: &BytesN<32>) -> B
 
 #[contractimpl]
 impl Contract {
-    pub fn init(env: Env) {
+    pub fn init(env: Env, r_node_owner: Address) {
         if env.storage().has(DataKey::RMap) {
             panic!("Contract already initialized")
         }
@@ -89,9 +89,9 @@ impl Contract {
         map.set(
             empty_hash(&env),
             Node {
-                owner: env.invoker(),
+                owner: r_node_owner.clone(),
                 p_hash: empty_hash(&env),
-                res_addr: Address::Contract(empty_hash(&env)),
+                res_addr: Address::Contract(empty_hash(&env))
             },
         );
 
@@ -151,6 +151,16 @@ impl Contract {
         );
 
         Ok(key)
+    }
+
+    pub fn get_owner(env: Env, hash: BytesN<32>) -> Result<Address, Error> {
+        if !env.storage().has(DataKey::RMap) {
+            panic!("Contract not initialized")
+        }
+        match map_get(&env, hash) {
+            Some(node) => Ok(node.owner),
+            None => Err(Error::NotFound),
+        }
     }
 
     pub fn set_owner(env: Env, hash: BytesN<32>, new_owner: Address) -> Result<BytesN<32>, Error> {
@@ -220,6 +230,7 @@ impl Contract {
     pub fn t_insert(env: Env, key: BytesN<32>, node: Node) {
         map_insert(&env, key, node)
     }
+
 }
 
 mod test;
